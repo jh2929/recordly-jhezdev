@@ -380,6 +380,20 @@ ipcMain.on("hud-overlay-hide", () => {
 	}
 });
 
+ipcMain.on("hud-overlay-toggle-visibility", () => {
+	if (hudOverlayWindow && !hudOverlayWindow.isDestroyed()) {
+		if (hudOverlayWindow.isVisible() && !hudOverlayWindow.isMinimized()) {
+			hudOverlayWindow.hide();
+		} else {
+			if (hudOverlayWindow.isMinimized()) {
+				hudOverlayWindow.restore();
+			}
+			hudOverlayWindow.show();
+			hudOverlayWindow.moveTop();
+		}
+	}
+});
+
 ipcMain.handle("get-hud-overlay-capture-protection", () => {
 	const enabled = loadHudOverlayCaptureProtectionSetting();
 

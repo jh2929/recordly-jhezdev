@@ -162,6 +162,20 @@ function LaunchWindowContent() {
 		};
 	}, []);
 
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			const isMac = navigator.platform.toUpperCase().includes("MAC");
+			const primaryMod = isMac ? e.metaKey : e.ctrlKey;
+			if (primaryMod && e.shiftKey && e.key.toLowerCase() === "h") {
+				e.preventDefault();
+				window.electronAPI?.hudOverlayToggleVisibility?.();
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, []);
+
 	const {
 		recordingHudOffset,
 		isHudDragging,

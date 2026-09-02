@@ -75,7 +75,7 @@ export function useTimelineRange({ totalMs, timelineContainerRef }: UseTimelineR
 	);
 
 	const handleTimelineWheel = useCallback(
-		(event: WheelEvent<HTMLDivElement>) => {
+		(event: globalThis.WheelEvent | WheelEvent<HTMLDivElement>) => {
 			if (((event.ctrlKey || event.metaKey) && !event.shiftKey) || totalMs <= 0) {
 				return;
 			}
@@ -103,12 +103,28 @@ export function useTimelineRange({ totalMs, timelineContainerRef }: UseTimelineR
 				return;
 			}
 
-			event.preventDefault();
+			if (typeof event.preventDefault === "function") {
+				event.preventDefault();
+			}
 			const deltaMs = (horizontalDeltaPx / containerWidth) * visibleRangeMs;
 			panTimelineRange(deltaMs);
 		},
 		[clampedRange.end, clampedRange.start, panTimelineRange, timelineContainerRef, totalMs],
 	);
+
+	useEffect(() => {
+		const container = timelineContainerRef.current;
+		if (!container) return;
+
+		const onWheelNative = (e: globalThis.WheelEvent) => {
+			handleTimelineWheel(e);
+		};
+
+		container.addEventListener("wheel", onWheelNative, { passive: false });
+		return () => {
+			container.removeEventListener("wheel", onWheelNative);
+		};
+	}, [handleTimelineWheel, timelineContainerRef]);
 
 	return {
 		range,
