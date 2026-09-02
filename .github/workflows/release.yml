@@ -134,20 +134,30 @@ jobs:
           python-version: '3.11'
 
       - name: Validate macOS signing secrets
+        id: macos_secrets
         shell: bash
         env:
           APPLE_SIGNING_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_P12_BASE64 }}
           APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
         run: |
           set -euo pipefail
+          MISSING=0
           for name in APPLE_SIGNING_CERTIFICATE_P12_BASE64 APPLE_SIGNING_CERTIFICATE_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
             if [ -z "${!name:-}" ]; then
-              echo "Missing required macOS release secret: $name"
-              exit 1
+              echo "Missing optional macOS release secret: $name"
+              MISSING=1
             fi
           done
+          if [ "$MISSING" -eq 1 ]; then
+            echo "has_secrets=false" >> "$GITHUB_OUTPUT"
+            echo "CSC_IDENTITY_AUTO_DISCOVERY=false" >> "$GITHUB_ENV"
+            echo "Building unsigned macOS release binaries."
+          else
+            echo "has_secrets=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Prepare macOS signing certificate
+        if: steps.macos_secrets.outputs.has_secrets == 'true'
         shell: bash
         env:
           APPLE_SIGNING_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_P12_BASE64 }}
@@ -158,6 +168,8 @@ jobs:
           echo "$APPLE_SIGNING_CERTIFICATE_P12_BASE64" | base64 --decode > "$CERT_PATH"
           {
             echo "CSC_LINK=$CERT_PATH"
+            echo "CSC_KEY_PASSWORD=$APPLE_SIGNING_CERTIFICATE_PASSWORD"
+          } >> "$GITHUB_ENV"
             echo "CSC_KEY_PASSWORD=$APPLE_SIGNING_CERTIFICATE_PASSWORD"
           } >> "$GITHUB_ENV"
 
@@ -236,20 +248,30 @@ jobs:
           python-version: '3.11'
 
       - name: Validate macOS signing secrets
+        id: macos_arm64_secrets
         shell: bash
         env:
           APPLE_SIGNING_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_P12_BASE64 }}
           APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
         run: |
           set -euo pipefail
+          MISSING=0
           for name in APPLE_SIGNING_CERTIFICATE_P12_BASE64 APPLE_SIGNING_CERTIFICATE_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
             if [ -z "${!name:-}" ]; then
-              echo "Missing required macOS release secret: $name"
-              exit 1
+              echo "Missing optional macOS release secret: $name"
+              MISSING=1
             fi
           done
+          if [ "$MISSING" -eq 1 ]; then
+            echo "has_secrets=false" >> "$GITHUB_OUTPUT"
+            echo "CSC_IDENTITY_AUTO_DISCOVERY=false" >> "$GITHUB_ENV"
+            echo "Building unsigned macOS release binaries."
+          else
+            echo "has_secrets=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Prepare macOS signing certificate
+        if: steps.macos_arm64_secrets.outputs.has_secrets == 'true'
         shell: bash
         env:
           APPLE_SIGNING_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_P12_BASE64 }}
