@@ -99,6 +99,7 @@
       "deb",
       "rpm"
     ],
+    "maintainer": "Recordly <support@recordly.dev>",
     "icon": "icons/icons/png",
     "artifactName": "recordly-jhezdev-${version}-linux-${arch}.${ext}",
     "category": "AudioVideo"

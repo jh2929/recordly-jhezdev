@@ -2,11 +2,11 @@
 	"name": "recordly",
 	"productName": "Recordly",
 	"description": "A free, creator-focused screen recorder with auto-zoom, cursor effects, backgrounds, annotations, and more - built for polished videos out of the box.",
-	"author": "webadderall",
-	"homepage": "https://github.com/webadderallorg/Recordly",
+	"author": "Recordly <support@recordly.dev>",
+	"homepage": "https://github.com/jh2929/recordly-jhezdev",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/webadderallorg/Recordly.git"
+		"url": "https://github.com/jh2929/recordly-jhezdev.git"
 	},
 	"bugs": {
 		"url": "https://github.com/webadderallorg/Recordly/issues"
