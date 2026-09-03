@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import fs from "node:fs/promises";
 import {
 	CURSOR_SAMPLE_INTERVAL_MS,
@@ -20,6 +21,7 @@ import {
 	setCursorCaptureAccumulatedPausedMs,
 	setCursorCaptureInterval,
 	setCursorCapturePauseStartedAtMs,
+	setLinuxCursorScreenPoint,
 	setPendingCursorSamples,
 } from "../state";
 import type { CursorInteractionType, CursorTelemetryPoint, CursorVisualType } from "../types";
@@ -165,16 +167,33 @@ export function getCursorCaptureElapsedMs(nowMs = Date.now()) {
 }
 
 export function getNormalizedCursorPoint() {
-	const fallbackCursor = getScreen().getCursorScreenPoint();
 	const linuxCursorCache = process.platform === "linux" ? linuxCursorScreenPoint : null;
-	const isLinuxCacheFresh = !!linuxCursorCache && Date.now() - linuxCursorCache.updatedAt <= 1000;
+	const isLinuxCacheFresh = !!linuxCursorCache && Date.now() - linuxCursorCache.updatedAt <= 500;
+
+	let cursor: { x: number; y: number } | null =
+		isLinuxCacheFresh && linuxCursorCache
+			? { x: linuxCursorCache.x, y: linuxCursorCache.y }
+			: null;
+
+	if (!cursor && process.platform === "linux") {
+		try {
+			const out = execSync("hyprctl cursorpos", { encoding: "utf-8", timeout: 150 }).trim();
+			const parts = out.split(",").map((s) => Number.parseInt(s.trim(), 10));
+			if (parts.length === 2 && Number.isFinite(parts[0]) && Number.isFinite(parts[1])) {
+				cursor = { x: parts[0], y: parts[1] };
+				setLinuxCursorScreenPoint({ x: parts[0], y: parts[1], updatedAt: Date.now() });
+			}
+		} catch {
+			// ignore if hyprctl is not available
+		}
+	}
+
+	if (!cursor) {
+		cursor = getScreen().getCursorScreenPoint();
+	}
 
 	const primarySf =
 		process.platform !== "darwin" ? getScreen().getPrimaryDisplay().scaleFactor || 1 : 1;
-
-	const cursor = isLinuxCacheFresh
-		? { x: linuxCursorCache.x, y: linuxCursorCache.y }
-		: fallbackCursor;
 
 	const windowBounds = selectedSource?.id?.startsWith("window:") ? selectedWindowBounds : null;
 	if (windowBounds) {

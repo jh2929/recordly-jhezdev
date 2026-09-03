@@ -49,6 +49,7 @@ import {
 	createEditorWindow,
 	createHudOverlayWindow,
 	createSourceSelectorWindow,
+	getHudOverlayRecordingActive,
 	getHudOverlayWindow,
 	getUpdateToastWindow,
 	hideUpdateToastWindow,
@@ -535,6 +536,7 @@ function isPrimaryTrayClick(event: unknown) {
 }
 
 function createTray() {
+	if (tray && !tray.isDestroyed()) return;
 	tray = new Tray(getDefaultTrayIcon());
 	tray.on("click", (event) => {
 		if (process.platform === "win32" && !isPrimaryTrayClick(event)) {
@@ -552,10 +554,10 @@ function createTray() {
 
 			tray.popUpContextMenu(trayContextMenu);
 		});
-		return;
 	}
 
 	tray.on("double-click", () => focusOrCreateMainWindow());
+	updateTrayMenu(getHudOverlayRecordingActive());
 }
 
 function shouldUseTray() {

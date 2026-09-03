@@ -660,6 +660,10 @@ export function reassertHudOverlayMousePassthrough(): void {
 	}, 50);
 }
 
+export function getHudOverlayRecordingActive(): boolean {
+	return hudOverlayRecordingActive;
+}
+
 export function setHudOverlayRecordingActive(recording: boolean): void {
 	hudOverlayRecordingActive = Boolean(recording);
 	hudOverlayFallbackExpanded = false;
