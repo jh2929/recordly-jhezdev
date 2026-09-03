@@ -287,7 +287,7 @@ function setHudOverlayMousePassthrough(ignore: boolean) {
 	}
 
 	if (!isHudOverlayMousePassthroughSupported()) {
-		setHudOverlayFallbackExpanded(!ignore || hudOverlaySourceSelectionActive);
+		setHudOverlayFallbackExpanded(hudOverlaySourceSelectionActive);
 		hudOverlayWindow.setIgnoreMouseEvents(false);
 		return;
 	}
