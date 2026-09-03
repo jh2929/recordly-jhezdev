@@ -44,7 +44,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npx vite build
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          npx electron-builder --win dir nsis --x64 --publish never
+          npx electron-builder --win dir nsis msi --x64 --publish never
 
       - name: Smoke test packaged Windows paths
         run: npm run smoke:packaged-binaries
@@ -63,6 +63,7 @@ jobs:
           name: windows-x64-release
           path: |
             release/*.exe
+            release/*.msi
             release/*.blockmap
             release/latest*.yml
             release/SHA256SUMS*.txt
@@ -165,7 +166,7 @@ jobs:
       - name: Install Linux native build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libx11-dev libxt-dev libxtst-dev libxkbfile-dev libxi-dev libxrandr-dev libxinerama-dev
+          sudo apt-get install -y rpm libx11-dev libxt-dev libxtst-dev libxkbfile-dev libxi-dev libxrandr-dev libxinerama-dev
 
       - name: Remove stale uiohook build output
         run: rm -rf node_modules/uiohook-napi/build
@@ -178,7 +179,7 @@ jobs:
           npm run build:platform-native-helpers
           npx tsc
           npx vite build
-          npx electron-builder --linux dir AppImage --x64 --publish never
+          npx electron-builder --linux dir AppImage deb rpm --x64 --publish never
 
       - name: Smoke test packaged Linux paths
         run: npm run smoke:packaged-binaries
@@ -197,6 +198,8 @@ jobs:
           name: linux-x64-release
           path: |
             release/**/*.AppImage
+            release/**/*.deb
+            release/**/*.rpm
             release/**/*.blockmap
             release/latest-linux.yml
             release/SHA256SUMS*.txt

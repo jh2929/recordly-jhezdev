@@ -41,8 +41,8 @@
   "publish": [
     {
       "provider": "github",
-      "owner": "webadderall",
-      "repo": "Recordly",
+      "owner": "jh2929",
+      "repo": "recordly-jhezdev",
       "tagNamePrefix": "v",
       "publishAutoUpdate": true
     }
@@ -63,7 +63,7 @@
       }
     ],
     "icon": "icons/icons/mac/icon.icns",
-    "artifactName": "${productName}-${arch}.${ext}",
+    "artifactName": "recordly-jhezdev-${version}-mac-${arch}.${ext}",
     "extendInfo": {
       "NSAudioCaptureUsageDescription": "Recordly needs audio capture permission to record system audio.",
       "NSCameraUsageDescription": "Recordly needs camera access to record webcam video.",
@@ -95,20 +95,22 @@
   },
   "linux": {
     "target": [
-      "AppImage"
+      "AppImage",
+      "deb",
+      "rpm"
     ],
     "icon": "icons/icons/png",
-    "artifactName": "${productName}-linux-x64.${ext}",
+    "artifactName": "recordly-jhezdev-${version}-linux-${arch}.${ext}",
     "category": "AudioVideo"
   },
   "win": {
     "target": [
-      "nsis"
+      "nsis",
+      "msi"
     ],
-    "icon": "icons/icons/win/icon.ico"
-    ,
-    "executableName": "Recordly",
-    "artifactName": "${productName}-windows-${arch}.${ext}"
+    "icon": "icons/icons/win/icon.ico",
+    "executableName": "recordly-jhezdev",
+    "artifactName": "recordly-jhezdev-${version}-windows-${arch}.${ext}"
   }
 }
 
