@@ -287,9 +287,7 @@ function setHudOverlayMousePassthrough(ignore: boolean) {
 	}
 
 	if (!isHudOverlayMousePassthroughSupported()) {
-		if (process.platform !== "linux") {
-			setHudOverlayFallbackExpanded(!ignore);
-		}
+		setHudOverlayFallbackExpanded(!ignore || hudOverlaySourceSelectionActive);
 		hudOverlayWindow.setIgnoreMouseEvents(false);
 		return;
 	}
@@ -308,13 +306,7 @@ ipcMain.on("hud-overlay-set-ignore-mouse", (_event, ignore: boolean) => {
 
 ipcMain.on("hud-overlay-set-source-selection-active", (_event, active: boolean) => {
 	hudOverlaySourceSelectionActive = Boolean(active);
-	if (hudOverlaySourceSelectionActive) {
-		hudOverlayFallbackExpanded = false;
-		applyHudOverlayBounds();
-		return;
-	}
-
-	setHudOverlayMousePassthrough(hudOverlayIgnoringMouse);
+	setHudOverlayFallbackExpanded(hudOverlaySourceSelectionActive);
 });
 
 // Keep compatibility with existing drag IPC/state.
