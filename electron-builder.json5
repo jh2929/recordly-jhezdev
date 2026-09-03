@@ -110,7 +110,7 @@
       "msi"
     ],
     "icon": "icons/icons/win/icon.ico",
-    "executableName": "recordly-jhezdev",
+    "executableName": "Recordly",
     "artifactName": "recordly-jhezdev-${version}-windows-${arch}.${ext}"
   }
 }
