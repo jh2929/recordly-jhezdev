@@ -246,6 +246,10 @@ function setHudOverlayFallbackExpanded(expanded: boolean) {
 		return;
 	}
 
+	if (hudOverlayFallbackExpanded === expanded) {
+		return;
+	}
+
 	hudOverlayFallbackExpanded = expanded;
 	if (
 		!hudOverlayWindow ||
@@ -660,10 +664,16 @@ export function setHudOverlayRecordingActive(recording: boolean): void {
 	hudOverlayRecordingActive = Boolean(recording);
 	hudOverlayFallbackExpanded = false;
 	applyHudOverlayBounds();
-	// Start in passthrough mode. Forwarded pointer movement lets the renderer
-	// make the visible HUD controls interactive when the pointer reaches them,
-	// while transparent parts never block the recorded application.
 	setHudOverlayMousePassthrough(true);
+
+	if (hudOverlayWindow && !hudOverlayWindow.isDestroyed()) {
+		if (recording) {
+			hudOverlayWindow.hide();
+		} else {
+			hudOverlayWindow.show();
+			hudOverlayWindow.moveTop();
+		}
+	}
 }
 
 export function createUpdateToastWindow(): BrowserWindow {
