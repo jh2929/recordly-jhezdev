@@ -4,6 +4,7 @@ import {
 	CornersInIcon,
 	CornersOutIcon,
 	DotsThreeVerticalIcon,
+	FilmStripIcon,
 	MicrophoneIcon,
 	MicrophoneSlashIcon,
 	MinusIcon,
@@ -448,6 +449,17 @@ function LaunchWindowContent() {
 				variant="ghost"
 				size="icon"
 				iconSize="lg"
+				onClick={() => void window.electronAPI.switchToEditor()}
+				title="Abrir Editor de Video (Open Editor)"
+				aria-label="Abrir Editor de Video"
+			>
+				<FilmStripIcon size={18} />
+			</Button>
+
+			<Button
+				variant="ghost"
+				size="icon"
+				iconSize="lg"
 				onClick={() => setIsCompact((prev: boolean) => !prev)}
 				title="Compact HUD Pill"
 			>
@@ -541,6 +553,16 @@ function LaunchWindowContent() {
 					<VideoCameraIcon size={15} />
 				</Button>
 			)}
+
+			<Button
+				variant="ghost"
+				size="icon"
+				iconSize="sm"
+				onClick={() => void window.electronAPI.switchToEditor()}
+				title="Abrir Editor (Open Editor)"
+			>
+				<FilmStripIcon size={14} />
+			</Button>
 
 			<Button
 				variant="ghost"

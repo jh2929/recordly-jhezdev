@@ -667,12 +667,10 @@ export function setHudOverlayRecordingActive(recording: boolean): void {
 	setHudOverlayMousePassthrough(true);
 
 	if (hudOverlayWindow && !hudOverlayWindow.isDestroyed()) {
-		if (recording) {
-			hudOverlayWindow.hide();
-		} else {
-			hudOverlayWindow.show();
-			hudOverlayWindow.moveTop();
-		}
+		if (hudOverlayWindow.isMinimized()) hudOverlayWindow.restore();
+		hudOverlayWindow.setAlwaysOnTop(true, "screen-saver");
+		hudOverlayWindow.show();
+		hudOverlayWindow.moveTop();
 	}
 }
 
