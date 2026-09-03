@@ -552,6 +552,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
 	resumeCursorCapture: (resumedAtMs?: number) => {
 		return ipcRenderer.invoke("resume-cursor-capture", resumedAtMs);
 	},
+	syncCursorTelemetryStart: () => {
+		return ipcRenderer.invoke("sync-cursor-telemetry-start");
+	},
 	startFfmpegRecording: (source: ProcessedDesktopSource) => {
 		return ipcRenderer.invoke("start-ffmpeg-recording", source);
 	},

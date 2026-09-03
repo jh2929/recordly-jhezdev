@@ -2,7 +2,7 @@ import type { CursorTelemetryPoint, ZoomFocus } from "../types";
 
 export const MIN_DWELL_DURATION_MS = 450;
 export const MAX_DWELL_DURATION_MS = 2600;
-export const DWELL_MOVE_THRESHOLD = 0.02;
+export const DWELL_MOVE_THRESHOLD = 0.035;
 export const MIN_FRESH_RECORDING_AUTO_ZOOM_SOURCE_ASPECT_RATIO = 1.2;
 
 export interface ZoomDwellCandidate {
@@ -186,7 +186,7 @@ export function detectZoomDwellCandidates(samples: CursorTelemetryPoint[]): Zoom
 		const start = samples[startIndex];
 		const end = samples[endIndexExclusive - 1];
 		const runDuration = end.timeMs - start.timeMs;
-		if (runDuration < MIN_DWELL_DURATION_MS || runDuration > MAX_DWELL_DURATION_MS) {
+		if (runDuration < MIN_DWELL_DURATION_MS) {
 			return;
 		}
 
@@ -197,7 +197,7 @@ export function detectZoomDwellCandidates(samples: CursorTelemetryPoint[]): Zoom
 		dwellCandidates.push({
 			centerTimeMs: Math.round((start.timeMs + end.timeMs) / 2),
 			focus: { cx: avgCx, cy: avgCy },
-			strength: runDuration,
+			strength: Math.min(runDuration, 2500),
 		});
 	};
 

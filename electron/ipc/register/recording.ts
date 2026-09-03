@@ -1881,6 +1881,14 @@ export function registerRecordingHandlers(
 		return { success: true };
 	});
 
+	ipcMain.handle("sync-cursor-telemetry-start", () => {
+		setCursorCaptureStartTimeMs(Date.now());
+		setActiveCursorSamples([]);
+		resetCursorCaptureClock();
+		sampleCursorPoint();
+		return { success: true };
+	});
+
 	ipcMain.handle("resume-cursor-capture", (_, resumedAtMs?: unknown) => {
 		resumeCursorCapture(normalizeRendererTimestampMs(resumedAtMs));
 		sampleCursorPoint();

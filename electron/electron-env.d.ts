@@ -278,6 +278,11 @@ interface Window {
 			message?: string;
 			error?: string;
 		}>;
+		syncCursorTelemetryStart: () => Promise<{
+			success: boolean;
+			message?: string;
+			error?: string;
+		}>;
 		startFfmpegRecording: (
 			source: ProcessedDesktopSource,
 		) => Promise<{ success: boolean; path?: string; message?: string; error?: string }>;

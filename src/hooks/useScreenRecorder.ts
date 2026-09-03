@@ -2163,6 +2163,9 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 			);
 
 			mediaRecorder.current = recorder;
+			recorder.onstart = () => {
+				void window.electronAPI?.syncCursorTelemetryStart?.();
+			};
 			recorder.ondataavailable = (event) => {
 				if (event.data && event.data.size > 0) chunks.current.push(event.data);
 			};
