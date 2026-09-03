@@ -703,9 +703,21 @@ export async function buildNativeCursorAtlas(
 	};
 }
 
+function catmullRom(p0: number, p1: number, p2: number, p3: number, t: number): number {
+	const t2 = t * t;
+	const t3 = t2 * t;
+	return (
+		0.5 *
+		(2 * p1 +
+			(-p0 + p2) * t +
+			(2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
+			(-p0 + 3 * p1 - 3 * p2 + p3) * t3)
+	);
+}
+
 /**
  * Interpolates cursor position from telemetry samples at a given time.
- * Uses linear interpolation between the two nearest samples.
+ * Uses Catmull-Rom cubic spline interpolation for fluid, natural motion.
  */
 export function interpolateCursorPosition(
 	samples: CursorTelemetryPoint[],
@@ -735,15 +747,22 @@ export function interpolateCursorPosition(
 		}
 	}
 
-	const a = samples[lo];
-	const b = samples[hi];
-	const span = b.timeMs - a.timeMs;
-	if (span <= 0) return { cx: a.cx, cy: a.cy };
+	const p1 = samples[lo];
+	const p2 = samples[hi];
+	const span = p2.timeMs - p1.timeMs;
+	if (span <= 0) return { cx: p1.cx, cy: p1.cy };
 
-	const t = (timeMs - a.timeMs) / span;
+	const t = (timeMs - p1.timeMs) / span;
+
+	const p0 = samples[Math.max(0, lo - 1)];
+	const p3 = samples[Math.min(samples.length - 1, hi + 1)];
+
+	const cx = catmullRom(p0.cx, p1.cx, p2.cx, p3.cx, t);
+	const cy = catmullRom(p0.cy, p1.cy, p2.cy, p3.cy, t);
+
 	return {
-		cx: a.cx + (b.cx - a.cx) * t,
-		cy: a.cy + (b.cy - a.cy) * t,
+		cx: Math.min(1, Math.max(0, cx)),
+		cy: Math.min(1, Math.max(0, cy)),
 	};
 }
 

@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import {
 	CURSOR_SAMPLE_INTERVAL_MS,
@@ -166,9 +167,31 @@ export function getCursorCaptureElapsedMs(nowMs = Date.now()) {
 	);
 }
 
+let hyprlandSocketPath: string | null | undefined = undefined;
+
+function getHyprlandSocket(): string | null {
+	if (hyprlandSocketPath !== undefined) return hyprlandSocketPath;
+	const sig = process.env.HYPRLAND_INSTANCE_SIGNATURE;
+	const runtimeDir = process.env.XDG_RUNTIME_DIR || "/run/user/1000";
+	if (sig) {
+		const candidate1 = `${runtimeDir}/hypr/${sig}/.socket.sock`;
+		if (fsSync.existsSync(candidate1)) {
+			hyprlandSocketPath = candidate1;
+			return hyprlandSocketPath;
+		}
+		const candidate2 = `/tmp/hypr/${sig}/.socket.sock`;
+		if (fsSync.existsSync(candidate2)) {
+			hyprlandSocketPath = candidate2;
+			return hyprlandSocketPath;
+		}
+	}
+	hyprlandSocketPath = null;
+	return null;
+}
+
 export function getNormalizedCursorPoint() {
 	const linuxCursorCache = process.platform === "linux" ? linuxCursorScreenPoint : null;
-	const isLinuxCacheFresh = !!linuxCursorCache && Date.now() - linuxCursorCache.updatedAt <= 500;
+	const isLinuxCacheFresh = !!linuxCursorCache && Date.now() - linuxCursorCache.updatedAt <= 100;
 
 	let cursor: { x: number; y: number } | null =
 		isLinuxCacheFresh && linuxCursorCache
@@ -177,7 +200,11 @@ export function getNormalizedCursorPoint() {
 
 	if (!cursor && process.platform === "linux") {
 		try {
-			const out = execSync("hyprctl cursorpos", { encoding: "utf-8", timeout: 150 }).trim();
+			const sockPath = getHyprlandSocket();
+			const cmd = sockPath
+				? `echo -n "cursorpos" | nc -U "${sockPath}"`
+				: "hyprctl cursorpos";
+			const out = execSync(cmd, { encoding: "utf-8", timeout: 50 }).trim();
 			const parts = out.split(",").map((s) => Number.parseInt(s.trim(), 10));
 			if (parts.length === 2 && Number.isFinite(parts[0]) && Number.isFinite(parts[1])) {
 				cursor = { x: parts[0], y: parts[1] };
