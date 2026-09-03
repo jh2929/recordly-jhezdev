@@ -193,13 +193,18 @@ export function resolveBrowserCaptureCursorPolicy({
 }: {
 	nativeWindowsCaptureStartFailed?: boolean;
 } = {}): BrowserCaptureCursorPolicy {
-	if (nativeWindowsCaptureStartFailed) {
-		// If WGC already failed, avoid the telemetry overlay path that can lag on
-		// constrained Windows systems; keep the browser-captured cursor instead.
+	const isLinux =
+		typeof window !== "undefined"
+			? navigator.platform.toUpperCase().includes("LINUX")
+			: false;
+
+	if (isLinux || nativeWindowsCaptureStartFailed) {
+		// On Linux (PipeWire/Wayland) or when WGC fails, capture the hardware OS cursor
+		// directly in the video stream so the mouse cursor is 100% visible in recordings.
 		return {
 			streamCursor: "always",
 			hideOsCursorBeforeRecording: false,
-			hideEditorOverlayCursorByDefault: true,
+			hideEditorOverlayCursorByDefault: false,
 		};
 	}
 
