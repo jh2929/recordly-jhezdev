@@ -6,6 +6,7 @@ import {
 	BrowserWindow,
 	desktopCapturer,
 	dialog,
+	globalShortcut,
 	webContents as electronWebContents,
 	ipcMain,
 	Menu,
@@ -1012,6 +1013,23 @@ app.whenReady().then(async () => {
 			}
 		},
 	);
+
+	try {
+		globalShortcut.register("CommandOrControl+Shift+H", () => {
+			const hud = getHudOverlayWindow();
+			if (hud && !hud.isDestroyed()) {
+				if (hud.isVisible() && !hud.isMinimized()) {
+					hud.hide();
+				} else {
+					if (hud.isMinimized()) hud.restore();
+					hud.show();
+					hud.moveTop();
+				}
+			}
+		});
+	} catch (error) {
+		console.warn("Failed to register global shortcut CommandOrControl+Shift+H:", error);
+	}
 
 	if (IS_SMOKE_EXPORT || process.env.RECORDLY_DEV_OPEN_RECORDING_INPUT) {
 		await logSmokeExportGpuDiagnostics();

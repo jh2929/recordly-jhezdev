@@ -81,7 +81,7 @@ export function HudPopover({
 		<Popover open={open} onOpenChange={onOpenChange} modal={false}>
 			<PopoverTrigger asChild>{trigger}</PopoverTrigger>
 			<PopoverContent
-				className={`launch-theme ${styles.menuCard} ${styles.electronNoDrag}`}
+				className={`launch-theme ${styles.menuCard} ${styles.electronNoDrag} max-h-[380px] overflow-y-auto`}
 				data-hud-interactive
 				unstyled
 				side="top"

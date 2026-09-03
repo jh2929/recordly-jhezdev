@@ -36,6 +36,12 @@ export function LaunchPopoverCoordinatorProvider({ children }: { children: React
 		return () => window.removeEventListener("blur", handleBlur);
 	}, []);
 
+	useEffect(() => {
+		if (window.electronAPI?.hudOverlaySetSourceSelectionActive) {
+			window.electronAPI.hudOverlaySetSourceSelectionActive(openId !== null);
+		}
+	}, [openId]);
+
 	const value = useMemo(
 		() => ({
 			openId,
