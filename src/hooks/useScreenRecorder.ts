@@ -199,13 +199,13 @@ export function resolveBrowserCaptureCursorPolicy({
 			: false;
 
 	if (isLinux || nativeWindowsCaptureStartFailed) {
-		// On Linux (PipeWire/Wayland) or when WGC fails, capture the hardware OS cursor
-		// directly in the video stream (streamCursor: "always") for zero-latency, natural motion,
-		// and hide the synthetic overlay cursor by default (hideEditorOverlayCursorByDefault: true).
+		// On Linux (PipeWire/Wayland), PipeWire screen capture omits hardware cursor planes.
+		// Enable Recordly's high-resolution 120Hz Catmull-Rom vector cursor overlay
+		// (hideEditorOverlayCursorByDefault: false) so mouse motion is ultra-fluid and auto-zooms trigger cleanly.
 		return {
 			streamCursor: "always",
 			hideOsCursorBeforeRecording: false,
-			hideEditorOverlayCursorByDefault: true,
+			hideEditorOverlayCursorByDefault: false,
 		};
 	}
 
