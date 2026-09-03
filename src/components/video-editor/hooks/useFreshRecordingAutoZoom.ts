@@ -48,6 +48,10 @@ export function useFreshRecordingAutoZoom({
 	}, [setAutoSuggestZoomsTrigger]);
 
 	useEffect(() => {
+		if (videoPath && !pendingFreshRecordingAutoZoomPathRef.current && autoSuggestedVideoPathRef.current !== videoPath && zoomRegions.length === 0) {
+			pendingFreshRecordingAutoZoomPathRef.current = videoPath;
+		}
+
 		if (
 			videoPath &&
 			pendingFreshRecordingAutoZoomPathRef.current === videoPath &&

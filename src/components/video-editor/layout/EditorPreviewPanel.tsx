@@ -1,4 +1,5 @@
 import {
+	ArrowsOutSimple,
 	CaretDown,
 	Check,
 	Crop,
@@ -14,7 +15,7 @@ import {
 	SpeakerLow,
 	SpeakerX,
 } from "@phosphor-icons/react";
-import type { Dispatch, RefObject, SetStateAction } from "react";
+import { type Dispatch, type RefObject, type SetStateAction, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -35,6 +36,7 @@ import type { useTimelineState } from "../state/useTimelineState";
 import type { TimelineEditorHandle } from "../timeline/TimelineEditor";
 import type { VideoPlaybackRef } from "../VideoPlayback";
 import { EditorVideoPreview } from "./EditorVideoPreview";
+import { FullscreenPreviewOverlay } from "./FullscreenPreviewOverlay";
 
 type Props = {
 	t: ReturnType<typeof useI18n>["t"];
@@ -112,8 +114,36 @@ export function EditorPreviewPanel(props: Props) {
 		setError,
 	} = props;
 
+	const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+
 	return (
 		<div className="flex min-h-0 flex-1 flex-col gap-3">
+			{/* Fullscreen Modal Overlay */}
+			<FullscreenPreviewOverlay
+				isOpen={isFullscreenOpen}
+				onClose={() => setIsFullscreenOpen(false)}
+				videoPath={videoPath}
+				previewVersion={previewVersion}
+				aspectRatio={aspectRatio}
+				playbackRef={videoPlaybackRef}
+				currentTime={currentTime}
+				duration={projection.timelineDuration}
+				isPlaying={isPlaying}
+				previewVolume={previewVolume}
+				setPreviewVolume={setPreviewVolume}
+				appearance={appearance}
+				timeline={timeline}
+				audio={audio}
+				effectiveZoomRegions={projection.effectiveZoomRegions}
+				effectiveSpeedRegions={projection.effectiveSpeedRegions}
+				effectiveCursorTelemetry={effectiveCursorTelemetry}
+				effectiveShowCursor={effectiveShowCursor}
+				setCurrentTime={setCurrentTime}
+				setIsPlaying={setIsPlaying}
+				playback={playback}
+				t={t}
+			/>
+
 			<div className="flex min-h-0 flex-1 flex-col">
 				<div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
 					<div className="flex flex-shrink-0 items-center justify-center gap-2 py-1.5">
@@ -160,6 +190,17 @@ export function EditorPreviewPanel(props: Props) {
 							{isCropped ? (
 								<span className="h-1.5 w-1.5 rounded-full bg-[#2563EB]" />
 							) : null}
+						</Button>
+						<div className="h-4 w-px bg-foreground/20" />
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => setIsFullscreenOpen(true)}
+							className="h-7 gap-1.5 px-2 text-xs text-muted-foreground transition-all hover:bg-foreground/10 hover:text-foreground"
+							title={t("editor.preview.fullscreen", "Pantalla Completa")}
+						>
+							<ArrowsOutSimple className="h-3.5 w-3.5" />
+							<span className="font-medium">{t("editor.preview.fullscreenLabel", "Pantalla Completa")}</span>
 						</Button>
 					</div>
 					<div
