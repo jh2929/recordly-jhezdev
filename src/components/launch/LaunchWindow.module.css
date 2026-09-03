@@ -20,6 +20,13 @@
 	overflow: visible;
 	position: relative;
 	transform-origin: center bottom;
+	transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.compactBar {
+	padding: 5px 12px 5px 10px !important;
+	border-radius: 9999px !important;
+	gap: 6px !important;
 }
 
 .barStateViewport {

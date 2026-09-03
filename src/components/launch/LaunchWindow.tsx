@@ -8,6 +8,8 @@ import {
 	MicrophoneSlashIcon,
 	MinusIcon,
 	MonitorIcon,
+	PauseIcon,
+	PlayIcon,
 	TimerIcon,
 	VideoCameraIcon,
 	VideoCameraSlashIcon,
@@ -484,7 +486,81 @@ function LaunchWindowContent() {
 		</div>
 	);
 
-	const hudMode = finalizing ? "finalizing" : recording ? "recording" : "idle";
+	const compactControls = (
+		<div className="flex items-center gap-2 px-1 py-0.5 pointer-events-auto">
+			<div
+				className={`w-[8px] h-[8px] rounded-full ${
+					recording
+						? paused
+							? "bg-[#fbbf24]"
+							: `bg-[#f43f5e] ${styles.recDotBlink}`
+						: "bg-[#3d8bff]"
+				}`}
+			/>
+			{recording ? (
+				<span
+					className={`font-mono text-xs font-bold tracking-tight ${
+						paused ? "text-[#fbbf24]" : "text-[var(--launch-text)]"
+					}`}
+				>
+					{formatTime(elapsed)}
+				</span>
+			) : (
+				<span className="text-xs font-bold text-[var(--launch-text)]">Recordly</span>
+			)}
+
+			{recording ? (
+				<>
+					<Button
+						variant="ghost"
+						size="icon"
+						iconSize="sm"
+						onClick={paused ? resumeRecording : pauseRecording}
+						title={paused ? t("recording.resume") : t("recording.pause")}
+					>
+						{paused ? <PlayIcon size={14} /> : <PauseIcon size={14} />}
+					</Button>
+					<button
+						type="button"
+						onClick={toggleRecording}
+						title={t("recording.stop")}
+						className={`${styles.recBtn} ${styles.electronNoDrag} !w-6 !h-6 !p-0.5`}
+					>
+						<span className={`${styles.stopSquare} !w-2.5 !h-2.5`} />
+					</button>
+				</>
+			) : (
+				<Button
+					variant="ghost"
+					size="icon"
+					iconSize="sm"
+					onClick={toggleRecording}
+					title={t("recording.start")}
+					className="text-[#f43f5e] hover:text-[#ff5a75]"
+				>
+					<VideoCameraIcon size={15} />
+				</Button>
+			)}
+
+			<Button
+				variant="ghost"
+				size="icon"
+				iconSize="sm"
+				onClick={() => setIsCompact(false)}
+				title="Expand HUD Bar"
+			>
+				<CornersOutIcon size={15} />
+			</Button>
+		</div>
+	);
+
+	const hudMode = isCompact
+		? "compact"
+		: finalizing
+			? "finalizing"
+			: recording
+				? "recording"
+				: "idle";
 	const useNativeHudBarDrag =
 		platform === "linux" || hudOverlayMousePassthroughSupported === false;
 	const shouldAnimateHudLayout = !recording && !showRecordingWebcamPreview && !isHudDragging;
@@ -512,7 +588,9 @@ function LaunchWindowContent() {
 								ref={hudBarRef}
 								layout={shouldAnimateHudLayout}
 								transition={hudStateTransition}
-								className={`${styles.bar} launch-theme mb-2 pointer-events-auto`}
+								className={`${styles.bar} launch-theme mb-2 pointer-events-auto ${
+									isCompact ? styles.compactBar : ""
+								}`}
 								onMouseEnter={handleHudMouseEnter}
 								onMouseLeave={handleHudMouseLeave}
 							>
@@ -557,11 +635,13 @@ function LaunchWindowContent() {
 											}}
 											transition={hudStateTransition}
 										>
-											{finalizing
-												? finalizingControls
-												: recording
-													? recordingControls
-													: idleControls}
+											{isCompact
+												? compactControls
+												: finalizing
+													? finalizingControls
+													: recording
+														? recordingControls
+														: idleControls}
 										</motion.div>
 									</AnimatePresence>
 								</div>
