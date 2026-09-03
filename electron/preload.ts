@@ -164,6 +164,21 @@ function settleNativeVideoExportPendingRequests(
 }
 
 contextBridge.exposeInMainWorld("electronAPI", {
+	onTrayActionToggleRecording: (callback: () => void) => {
+		const listener = () => callback();
+		ipcRenderer.on("tray-action-toggle-recording", listener);
+		return () => ipcRenderer.removeListener("tray-action-toggle-recording", listener);
+	},
+	onTrayActionPauseResume: (callback: () => void) => {
+		const listener = () => callback();
+		ipcRenderer.on("tray-action-pause-resume", listener);
+		return () => ipcRenderer.removeListener("tray-action-pause-resume", listener);
+	},
+	onTrayActionToggleCompact: (callback: () => void) => {
+		const listener = () => callback();
+		ipcRenderer.on("tray-action-toggle-compact", listener);
+		return () => ipcRenderer.removeListener("tray-action-toggle-compact", listener);
+	},
 	hudOverlaySetIgnoreMouse: (ignore: boolean) => {
 		ipcRenderer.send("hud-overlay-set-ignore-mouse", ignore);
 	},

@@ -197,6 +197,9 @@ interface RendererNativeExportCapabilities {
 
 interface Window {
 	electronAPI: {
+		onTrayActionToggleRecording: (callback: () => void) => () => void;
+		onTrayActionPauseResume: (callback: () => void) => () => void;
+		onTrayActionToggleCompact: (callback: () => void) => () => void;
 		hudOverlaySetIgnoreMouse: (ignore: boolean) => void;
 		hudOverlaySetSourceSelectionActive: (active: boolean) => void;
 		hudOverlayDrag: (phase: "start" | "move" | "end", screenX: number, screenY: number) => void;

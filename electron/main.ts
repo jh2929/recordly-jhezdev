@@ -692,40 +692,105 @@ ipcMain.handle("check-for-app-updates", async () => {
 	return { success: true, logPath: getUpdaterLogPath() };
 });
 
+function toggleHud() {
+	const hud = getHudOverlayWindow();
+	if (hud && !hud.isDestroyed()) {
+		if (hud.isVisible() && !hud.isMinimized()) {
+			hud.hide();
+		} else {
+			hud.setIgnoreMouseEvents(false);
+			if (hud.isMinimized()) hud.restore();
+			hud.setAlwaysOnTop(true, "screen-saver");
+			hud.show();
+			hud.focus();
+			hud.moveTop();
+		}
+	}
+}
+
 function updateTrayMenu(recording: boolean = false) {
 	if (!tray) return;
 	const trayIcon = recording ? getRecordingTrayIcon() : getDefaultTrayIcon();
 	const trayToolTip = recording ? `Recording: ${selectedSourceName}` : "Recordly";
+	const sendHudAction = (channel: string) => {
+		const hud = getHudOverlayWindow();
+		if (hud && !hud.isDestroyed()) {
+			hud.webContents.send(channel);
+		}
+	};
+
 	const menuTemplate = recording
 		? [
 				{
-					label: "Show Controls",
+					label: "⏹️ Stop Recording",
 					click: () => {
-						if (!showHudOverlayFromTray()) {
-							focusOrCreateMainWindow();
-						}
+						sendHudAction("tray-action-toggle-recording");
 					},
 				},
 				{
-					label: "Stop Recording",
+					label: "⏸️ Pause / Resume",
 					click: () => {
-						if (mainWindow && !mainWindow.isDestroyed()) {
-							mainWindow.webContents.send("stop-recording-from-tray");
-						}
+						sendHudAction("tray-action-pause-resume");
+					},
+				},
+				{
+					label: "👁️ Toggle HUD Controls (Ctrl+Shift+H)",
+					click: () => {
+						toggleHud();
+					},
+				},
+				{
+					label: "📐 Toggle Compact Pill Mode",
+					click: () => {
+						sendHudAction("tray-action-toggle-compact");
+					},
+				},
+				{
+					type: "separator" as const,
+				},
+				{
+					label: "🎥 Open Editor",
+					click: () => {
+						focusOrCreateMainWindow();
+					},
+				},
+				{
+					label: "❌ Quit Recordly",
+					click: () => {
+						app.quit();
 					},
 				},
 			]
 		: [
 				{
-					label: "Open",
+					label: "🔴 Start Recording",
 					click: () => {
-						if (!showHudOverlayFromTray()) {
-							focusOrCreateMainWindow();
-						}
+						sendHudAction("tray-action-toggle-recording");
 					},
 				},
 				{
-					label: "Quit",
+					label: "👁️ Toggle HUD Controls (Ctrl+Shift+H)",
+					click: () => {
+						toggleHud();
+					},
+				},
+				{
+					label: "📐 Toggle Compact Pill Mode",
+					click: () => {
+						sendHudAction("tray-action-toggle-compact");
+					},
+				},
+				{
+					type: "separator" as const,
+				},
+				{
+					label: "🎥 Open Editor",
+					click: () => {
+						focusOrCreateMainWindow();
+					},
+				},
+				{
+					label: "❌ Quit Recordly",
 					click: () => {
 						app.quit();
 					},
@@ -1020,8 +1085,11 @@ app.whenReady().then(async () => {
 			if (hud.isVisible() && !hud.isMinimized()) {
 				hud.hide();
 			} else {
+				hud.setIgnoreMouseEvents(false);
 				if (hud.isMinimized()) hud.restore();
+				hud.setAlwaysOnTop(true, "screen-saver");
 				hud.show();
+				hud.focus();
 				hud.moveTop();
 			}
 		}

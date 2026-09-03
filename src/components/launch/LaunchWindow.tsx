@@ -1,6 +1,8 @@
 import {
 	ArrowClockwiseIcon,
 	CaretUpIcon,
+	CornersInIcon,
+	CornersOutIcon,
 	DotsThreeVerticalIcon,
 	MicrophoneIcon,
 	MicrophoneSlashIcon,
@@ -12,7 +14,7 @@ import {
 	XIcon,
 } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RxDragHandleDots2 } from "react-icons/rx";
 import { Separator } from "@/components/ui/separator";
 import { useScopedT } from "../../contexts/I18nContext";
@@ -162,6 +164,27 @@ function LaunchWindowContent() {
 		};
 	}, []);
 
+	const [isCompact, setIsCompact] = useState(false);
+
+	useEffect(() => {
+		const cleanupToggle = window.electronAPI?.onTrayActionToggleRecording?.(() => {
+			toggleRecording();
+		});
+		const cleanupPause = window.electronAPI?.onTrayActionPauseResume?.(() => {
+			if (paused) resumeRecording();
+			else pauseRecording();
+		});
+		const cleanupCompact = window.electronAPI?.onTrayActionToggleCompact?.(() => {
+			setIsCompact((prev: boolean) => !prev);
+		});
+
+		return () => {
+			cleanupToggle?.();
+			cleanupPause?.();
+			cleanupCompact?.();
+		};
+	}, [paused, toggleRecording, resumeRecording, pauseRecording]);
+
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			const isMac = navigator.platform.toUpperCase().includes("MAC");
@@ -225,6 +248,8 @@ function LaunchWindowContent() {
 			paused={paused}
 			microphoneEnabled={microphoneEnabled}
 			elapsed={elapsed}
+			isCompact={isCompact}
+			onToggleCompact={() => setIsCompact((c: boolean) => !c)}
 			onToggleMicrophone={() => setMicrophoneEnabled(!microphoneEnabled)}
 			onPauseResume={paused ? resumeRecording : pauseRecording}
 			onStopRecording={toggleRecording}
@@ -416,6 +441,16 @@ function LaunchWindowContent() {
 					</Button>
 				}
 			/>
+
+			<Button
+				variant="ghost"
+				size="icon"
+				iconSize="lg"
+				onClick={() => setIsCompact((prev: boolean) => !prev)}
+				title="Compact HUD Pill"
+			>
+				{isCompact ? <CornersOutIcon size={16} /> : <CornersInIcon size={16} />}
+			</Button>
 
 			<Button
 				variant="ghost"

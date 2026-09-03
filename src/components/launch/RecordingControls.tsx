@@ -5,6 +5,8 @@ import {
 	PauseIcon,
 	PlayIcon,
 	XIcon,
+	CornersInIcon,
+	CornersOutIcon,
 } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import { useScopedT } from "@/contexts/I18nContext";
@@ -16,6 +18,8 @@ interface RecordingControlsProps {
 	paused: boolean;
 	microphoneEnabled: boolean;
 	elapsed: number;
+	isCompact?: boolean;
+	onToggleCompact?: () => void;
 	onToggleMicrophone: () => void;
 	onPauseResume: () => void;
 	onStopRecording: () => void;
@@ -28,6 +32,8 @@ export const RecordingControls = ({
 	paused,
 	microphoneEnabled,
 	elapsed,
+	isCompact = false,
+	onToggleCompact,
 	onToggleMicrophone,
 	onPauseResume,
 	onStopRecording,
@@ -38,6 +44,53 @@ export const RecordingControls = ({
 	const t = useScopedT("launch");
 
 	const memoizedControls = useMemo(() => {
+		if (isCompact) {
+			return (
+				<div className="flex items-center gap-2 px-2 py-1 pointer-events-auto">
+					<div
+						className={`w-[8px] h-[8px] rounded-full ${
+							paused ? "bg-[#fbbf24]" : `bg-[#f43f5e] ${styles.recDotBlink}`
+						}`}
+					/>
+					<span
+						className={`font-mono text-xs font-bold tracking-tight ${
+							paused ? "text-[#fbbf24]" : "text-[var(--launch-text)]"
+						}`}
+					>
+						{formatTime(elapsed)}
+					</span>
+					<Button
+						variant="ghost"
+						size="icon"
+						iconSize="sm"
+						onClick={onPauseResume}
+						title={paused ? t("recording.resume") : t("recording.pause")}
+					>
+						{paused ? <PlayIcon size={14} /> : <PauseIcon size={14} />}
+					</Button>
+					<button
+						type="button"
+						onClick={onStopRecording}
+						title={t("recording.stop")}
+						className={`${styles.recBtn} ${styles.electronNoDrag} !w-6 !h-6 !p-0.5`}
+					>
+						<span className={`${styles.stopSquare} !w-2.5 !h-2.5`} />
+					</button>
+					{onToggleCompact && (
+						<Button
+							variant="ghost"
+							size="icon"
+							iconSize="sm"
+							onClick={onToggleCompact}
+							title="Expand HUD Controls"
+						>
+							<CornersOutIcon size={14} />
+						</Button>
+					)}
+				</div>
+			);
+		}
+
 		return (
 			<>
 				<div className="flex items-center gap-[5px]">
@@ -111,6 +164,19 @@ export const RecordingControls = ({
 					<span className={styles.stopSquare} />
 				</button>
 
+				{onToggleCompact && (
+					<Button
+						variant="ghost"
+						size="icon"
+						iconSize="lg"
+						onClick={onToggleCompact}
+						title="Compact HUD Pill"
+						aria-label="Compact HUD Pill"
+					>
+						<CornersInIcon size={16} />
+					</Button>
+				)}
+
 				<Button
 					variant="ghost"
 					size="icon"
@@ -135,6 +201,8 @@ export const RecordingControls = ({
 			</>
 		);
 	}, [
+		isCompact,
+		onToggleCompact,
 		paused,
 		microphoneEnabled,
 		elapsed,
