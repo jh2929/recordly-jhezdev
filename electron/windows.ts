@@ -119,7 +119,7 @@ function isHudOverlayCaptureProtectionSupported(): boolean {
 }
 
 export function isHudOverlayMousePassthroughSupported(): boolean {
-	return process.platform !== "linux";
+	return true;
 }
 
 function loadHudOverlayCaptureProtectionSetting(): boolean {
