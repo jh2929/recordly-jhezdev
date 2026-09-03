@@ -1,4 +1,5 @@
 import type { ComponentProps } from "react";
+import { useEffect, useState } from "react";
 import { EditorAnnouncementBanner } from "@/components/announcements/EditorAnnouncementBanner";
 import { Toaster } from "@/components/ui/sonner";
 import type { useI18n } from "@/contexts/I18nContext";
@@ -117,6 +118,29 @@ export function EditorShell(props: Props) {
 			setNativeCaptureUnavailableModalOpen={ui.setNativeCaptureUnavailableModalOpen}
 		/>
 	);
+	const [isFullscreen, setIsFullscreen] = useState(false);
+
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			const activeElement = document.activeElement;
+			const isEditable =
+				activeElement &&
+				(activeElement.tagName === "INPUT" ||
+					activeElement.tagName === "TEXTAREA" ||
+					(activeElement as HTMLElement).isContentEditable);
+
+			if (!isEditable && (event.key === "f" || event.key === "F")) {
+				event.preventDefault();
+				setIsFullscreen((prev) => !prev);
+			} else if (isFullscreen && event.key === "Escape") {
+				setIsFullscreen(false);
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [isFullscreen]);
+
 	if (project.loading)
 		return (
 			<div className="flex h-screen items-center justify-center bg-background">
@@ -145,48 +169,52 @@ export function EditorShell(props: Props) {
 		);
 
 	return (
-		<div className="flex h-screen flex-col overflow-hidden bg-editor-bg text-foreground selection:bg-[#2563EB]/30">
-			<EditorHeader
-				t={t}
-				headerLeftControlsPaddingClass={headerLeftControlsPaddingClass}
-				project={project}
-				projectBrowserTriggerRef={ui.projectBrowserTriggerRef}
-				projectNameInputRef={ui.projectNameInputRef}
-				projectDisplayName={snapshot.projectDisplayName}
-				hasUnsavedChanges={hasUnsavedChanges}
-				canUndo={history.canUndo}
-				canRedo={history.canRedo}
-				handleOpenProjectBrowser={openActions.handleOpenProjectBrowser}
-				handleUndo={history.handleUndo}
-				handleRedo={history.handleRedo}
-				handleProjectNameSubmit={saveActions.handleProjectNameSubmit}
-				closeProjectNameEditor={saveActions.closeProjectNameEditor}
-				presets={presets}
-				exportSettings={exportSettings}
-				exportSession={exportSession}
-				exportDimensions={exportDimensions}
-				exportStatus={exportStatus}
-				hasCaptionsForSidecar={hasCaptionsForSidecar}
-				nvidiaCudaExportAvailable={nvidiaCudaExportAvailable}
-				experimentalNvidiaCudaExport={experimentalNvidiaCudaExport}
-				setExperimentalNvidiaCudaExport={setExperimentalNvidiaCudaExport}
-				handleOpenExportDropdown={dialogActions.handleOpenExportDropdown}
-				handleExportDropdownClose={dialogActions.handleExportDropdownClose}
-				handleCancelExport={dialogActions.handleCancelExport}
-				handleRetrySaveExport={dialogActions.handleRetrySaveExport}
-				handleStartExportFromDropdown={dialogActions.handleStartExportFromDropdown}
-				revealExportedFile={dialogActions.revealExportedFile}
-				exportMessage={exportMessage}
-			/>
-			<EditorAnnouncementBanner />
-			<div className="relative flex min-h-0 flex-1 flex-col gap-3 p-4">
+		<div className="flex h-screen w-screen flex-col overflow-hidden bg-editor-surface text-foreground select-none">
+			{!isFullscreen && (
+				<EditorHeader
+					t={t}
+					headerLeftControlsPaddingClass={headerLeftControlsPaddingClass}
+					project={project}
+					projectBrowserTriggerRef={ui.projectBrowserTriggerRef}
+					projectNameInputRef={ui.projectNameInputRef}
+					projectDisplayName={snapshot.projectDisplayName}
+					hasUnsavedChanges={hasUnsavedChanges}
+					canUndo={history.canUndo}
+					canRedo={history.canRedo}
+					handleOpenProjectBrowser={openActions.handleOpenProjectBrowser}
+					handleUndo={history.handleUndo}
+					handleRedo={history.handleRedo}
+					handleProjectNameSubmit={saveActions.handleProjectNameSubmit}
+					closeProjectNameEditor={saveActions.closeProjectNameEditor}
+					presets={presets}
+					exportSettings={exportSettings}
+					exportSession={exportSession}
+					exportDimensions={exportDimensions}
+					exportStatus={exportStatus}
+					hasCaptionsForSidecar={hasCaptionsForSidecar}
+					nvidiaCudaExportAvailable={nvidiaCudaExportAvailable}
+					experimentalNvidiaCudaExport={experimentalNvidiaCudaExport}
+					setExperimentalNvidiaCudaExport={setExperimentalNvidiaCudaExport}
+					handleOpenExportDropdown={dialogActions.handleOpenExportDropdown}
+					handleExportDropdownClose={dialogActions.handleExportDropdownClose}
+					handleCancelExport={dialogActions.handleCancelExport}
+					handleRetrySaveExport={dialogActions.handleRetrySaveExport}
+					handleStartExportFromDropdown={dialogActions.handleStartExportFromDropdown}
+					revealExportedFile={dialogActions.revealExportedFile}
+					exportMessage={exportMessage}
+				/>
+			)}
+			{!isFullscreen && <EditorAnnouncementBanner />}
+			<div className={`relative flex min-h-0 flex-1 flex-col ${isFullscreen ? "p-0" : "gap-3 p-4"}`}>
 				<div className="relative z-10 flex min-h-0 flex-1 gap-3">
-					<EditorSidebar
-						t={t}
-						activeSection={ui.activeEffectSection}
-						setActiveSection={ui.setActiveEffectSection}
-						settingsPanelProps={settingsPanelProps}
-					/>
+					{!isFullscreen && (
+						<EditorSidebar
+							t={t}
+							activeSection={ui.activeEffectSection}
+							setActiveSection={ui.setActiveEffectSection}
+							settingsPanelProps={settingsPanelProps}
+						/>
+					)}
 					<EditorPreviewPanel
 						t={t}
 						videoPath={project.videoPath}
@@ -219,29 +247,33 @@ export function EditorShell(props: Props) {
 						setCurrentTime={ui.setCurrentTime}
 						setIsPlaying={ui.setIsPlaying}
 						setError={project.setError}
+						isFullscreen={isFullscreen}
+						setIsFullscreen={setIsFullscreen}
 					/>
 				</div>
-				<EditorTimelinePanel
-					timelineRef={ui.timelineRef}
-					timeline={timeline}
-					projection={projection}
-					playback={playback}
-					audio={audio}
-					zoomCommands={zoomCommands}
-					clipCommands={clipCommands}
-					audioCommands={audioCommands}
-					captionCommands={captionCommands}
-					annotationCommands={annotationCommands}
-					videoPath={project.videoPath}
-					videoSourcePath={project.videoSourcePath}
-					cursorTelemetrySourcePath={timeline.cursorTelemetrySourcePath}
-					normalizedCursorTelemetry={cursor.normalizedCursorTelemetry}
-					autoSuggestZoomsTrigger={ui.autoSuggestZoomsTrigger}
-					handleAutoSuggestZoomsConsumed={handleAutoSuggestZoomsConsumed}
-					disableSuggestedZooms={!appearance.autoApplyFreshRecordingAutoZooms}
-					currentTime={ui.currentTime}
-					handleSelectAnnotation={handleSelectAnnotation}
-				/>
+				{!isFullscreen && (
+					<EditorTimelinePanel
+						timelineRef={ui.timelineRef}
+						timeline={timeline}
+						projection={projection}
+						playback={playback}
+						audio={audio}
+						zoomCommands={zoomCommands}
+						clipCommands={clipCommands}
+						audioCommands={audioCommands}
+						captionCommands={captionCommands}
+						annotationCommands={annotationCommands}
+						videoPath={project.videoPath}
+						videoSourcePath={project.videoSourcePath}
+						cursorTelemetrySourcePath={timeline.cursorTelemetrySourcePath}
+						normalizedCursorTelemetry={cursor.normalizedCursorTelemetry}
+						autoSuggestZoomsTrigger={ui.autoSuggestZoomsTrigger}
+						handleAutoSuggestZoomsConsumed={handleAutoSuggestZoomsConsumed}
+						disableSuggestedZooms={!appearance.autoApplyFreshRecordingAutoZooms}
+						currentTime={ui.currentTime}
+						handleSelectAnnotation={handleSelectAnnotation}
+					/>
+				)}
 			</div>
 			{editorDialogs}
 			<CropEditorDialog
