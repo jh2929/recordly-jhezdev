@@ -200,11 +200,12 @@ export function resolveBrowserCaptureCursorPolicy({
 
 	if (isLinux || nativeWindowsCaptureStartFailed) {
 		// On Linux (PipeWire/Wayland) or when WGC fails, capture the hardware OS cursor
-		// directly in the video stream so the mouse cursor is 100% visible in recordings.
+		// directly in the video stream (streamCursor: "always") for zero-latency, natural motion,
+		// and hide the synthetic overlay cursor by default (hideEditorOverlayCursorByDefault: true).
 		return {
 			streamCursor: "always",
 			hideOsCursorBeforeRecording: false,
-			hideEditorOverlayCursorByDefault: false,
+			hideEditorOverlayCursorByDefault: true,
 		};
 	}
 
