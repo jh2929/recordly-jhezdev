@@ -11,6 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import { type Dispatch, type RefObject, type SetStateAction, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import type { AspectRatio } from "@/utils/aspectRatioUtils";
 import type { useVideoEditorAudio } from "../audio/useVideoEditorAudio";
 import type { useEditorPlaybackControls } from "../hooks/useEditorPlaybackControls";
 import type { useAppearanceState } from "../state/useAppearanceState";
@@ -24,7 +25,7 @@ interface FullscreenPreviewOverlayProps {
 	onClose: () => void;
 	videoPath: string | null;
 	previewVersion: number;
-	aspectRatio: any;
+	aspectRatio: AspectRatio;
 	playbackRef: RefObject<VideoPlaybackRef>;
 	currentTime: number;
 	duration: number;
@@ -50,6 +51,8 @@ function formatTime(seconds: number) {
 	const secs = Math.floor(seconds % 60);
 	return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
+
+const noop = () => undefined;
 
 export function FullscreenPreviewOverlay({
 	isOpen,
@@ -146,18 +149,18 @@ export function FullscreenPreviewOverlay({
 						effectiveSpeedRegions={effectiveSpeedRegions}
 						effectiveCursorTelemetry={effectiveCursorTelemetry}
 						effectiveShowCursor={effectiveShowCursor}
-						setDuration={() => {}}
-						setIsPreviewReady={() => {}}
+						setDuration={noop}
+						setIsPreviewReady={noop}
 						setCurrentTime={setCurrentTime}
 						setIsPlaying={setIsPlaying}
-						setError={() => {}}
+						setError={noop}
 						handlers={{
-							onSelectZoom: () => {},
-							onZoomFocusChange: () => {},
-							onEditAutoCaption: () => {},
-							onSelectAnnotation: () => {},
-							onAnnotationPositionChange: () => {},
-							onAnnotationSizeChange: () => {},
+							onSelectZoom: noop,
+							onZoomFocusChange: noop,
+							onEditAutoCaption: noop,
+							onSelectAnnotation: noop,
+							onAnnotationPositionChange: noop,
+							onAnnotationSizeChange: noop,
 						}}
 					/>
 				</div>
