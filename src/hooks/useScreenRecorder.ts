@@ -198,7 +198,7 @@ export function resolveBrowserCaptureCursorPolicy({
 			? navigator.platform.toUpperCase().includes("LINUX")
 			: false;
 
-	if (isLinux || nativeWindowsCaptureStartFailed) {
+	if (isLinux) {
 		// On Linux (PipeWire/Wayland), PipeWire screen capture omits hardware cursor planes.
 		// Enable Recordly's high-resolution 120Hz Catmull-Rom vector cursor overlay
 		// (hideEditorOverlayCursorByDefault: false) so mouse motion is ultra-fluid and auto-zooms trigger cleanly.
@@ -206,6 +206,14 @@ export function resolveBrowserCaptureCursorPolicy({
 			streamCursor: "always",
 			hideOsCursorBeforeRecording: false,
 			hideEditorOverlayCursorByDefault: false,
+		};
+	}
+
+	if (nativeWindowsCaptureStartFailed) {
+		return {
+			streamCursor: "always",
+			hideOsCursorBeforeRecording: false,
+			hideEditorOverlayCursorByDefault: true,
 		};
 	}
 
