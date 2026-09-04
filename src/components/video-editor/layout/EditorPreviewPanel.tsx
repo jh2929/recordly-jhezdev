@@ -17,8 +17,7 @@ import {
 	SpeakerLow,
 	SpeakerX,
 } from "@phosphor-icons/react";
-import { type Dispatch, type RefObject, type SetStateAction, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import type { Dispatch, RefObject, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
